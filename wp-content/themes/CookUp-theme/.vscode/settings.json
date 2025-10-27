@@ -1,0 +1,30 @@
+{
+  // --- Форматування коду ---
+  "editor.formatOnSave": true, // автоматичне форматування при збереженні
+  "editor.tabSize": 4, // кількість пробілів для відступу
+  "editor.insertSpaces": true, // використовувати пробіли замість табуляцій
+  "editor.detectIndentation": false, // вимкнути авто-детекцію відступів
+
+  // --- PHP Intelephense ---
+  "intelephense.format.enable": true,
+  "intelephense.format.braces": "k&r", // стиль дужок K&R (WordPress стандарт)
+  "intelephense.format.indent": "space", // пробіли замість табуляцій
+  "intelephense.format.tabSize": 4,
+  "intelephense.environment.phpVersion": "8.2.0", // версія PHP
+  "intelephense.files.associations": ["*.php"], // асоціація для всіх PHP файлів
+
+  // --- Автодоповнення ---
+  "intelephense.completion.insertUseDeclaration": true,
+  "intelephense.completion.fullyQualifyGlobalConstants": true,
+
+  // --- Шляхи для WordPress ---
+  "intelephense.environment.includePaths": [
+    "./wp-content/themes",
+    "./wp-content/plugins"
+  ],
+
+  // --- Додатково для зручності ---
+  "files.autoSave": "onFocusChange", // автозбереження при перемиканні між файлами
+  "files.trimTrailingWhitespace": true, // обрізати зайві пробіли
+  "files.insertFinalNewline": true // вставляти новий рядок в кінці файлу
+}
