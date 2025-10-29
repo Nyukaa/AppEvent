@@ -56,18 +56,28 @@ function tourcatalog_shortcode($attr) {
 
             $text .= '<h3>' . esc_html(get_the_title()) . '</h3>';
 
-            
-
             $text .= '<p class="tour-meta language">' . esc_html($language) . '</p>';
             $text .= '<p class="tour-meta forwhom">'  . esc_html($forwhom)  . '</p>';
-            $text .= '<p class="tour-meta date">'     . esc_html($time)     . '</p>';
-            $text .= '<p class="tour-meta place">'    . esc_html($place)    . '</p>';
+            
+            // 👇 Only show date if NOT "community"
+            if ($main_cat !== 'community' && $cat['category'] !== 'community') {
+                $text .= '<p class="tour-meta date">' . esc_html($time) . '</p>';
+            }
+
+            $text .= '<p class="tour-meta place">' . esc_html($place) . '</p>';
 
             $text .= get_the_post_thumbnail();
+
             if ($subcategory) {
                 $text .= '<p class="subcategory"> ' . esc_html($subcategory) . '</p>';
             }
-            $text .= get_the_content();
+
+            // --- Show excerpt (or trim content) ---
+            $content = get_the_excerpt();
+            if (!$content) {
+                $content = wp_trim_words(get_the_content(), 10, '...');
+            }
+            $text .= '<p class="tour-excerpt">' . esc_html($content) . '</p>';
 
             $permalink = get_permalink();
             $text .= '<a href="' . esc_url($permalink) . '" class="tour-btn">Read more</a>';

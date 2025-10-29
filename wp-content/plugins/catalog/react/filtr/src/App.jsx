@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import "./App.css";
 export default function App() {
   const [tours, setTours] = useState([]);
   const [places, setPlaces] = useState([]);
@@ -20,7 +20,7 @@ export default function App() {
 
   useEffect(() => {
     // Попробуем получить категорию из обёртки шорткода, например:
-    // <div id="tour-filter-root" data-category="event"></div>
+    // <div id="tour-filter-root" data-category="community"></div>
     const root = document.getElementById("tour-filter-root");
     const initialCategory = root?.dataset?.category || "all";
     setFilters((prev) => ({ ...prev, category: initialCategory }));
@@ -81,12 +81,16 @@ export default function App() {
   return (
     <div
       className="tour-filters"
-      style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
+      // style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
     >
+      {/* Time (only for category = event) */}
       {filters.category === "event" && (
-        <label>
-          Time:
+        <div className="filter-group">
+          <label className="filter-time" htmlFor="time">
+            Time:
+          </label>
           <select
+            id="time"
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, time: e.target.value }))
             }
@@ -97,13 +101,16 @@ export default function App() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
       )}
 
       {/* Place */}
-      <label>
-        Place:
+      <div className="filter-group ">
+        <label className="filter-place" htmlFor="place">
+          Place:
+        </label>
         <select
+          id="place"
           onChange={(e) =>
             setFilters((prev) => ({ ...prev, place: e.target.value }))
           }
@@ -114,12 +121,15 @@ export default function App() {
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
       {/* Subcategory */}
-      <label>
-        Theme:
+      <div className="filter-group">
+        <label className="filter-subcategory" htmlFor="subcategory">
+          Theme:
+        </label>
         <select
+          id="subcategory"
           onChange={(e) =>
             setFilters((prev) => ({ ...prev, subcategory: e.target.value }))
           }
@@ -130,12 +140,15 @@ export default function App() {
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
       {/* For whom */}
-      <label>
-        For whom:
+      <div className="filter-group">
+        <label className="filter-forwhom" htmlFor="forwhom">
+          Audience:
+        </label>
         <select
+          id="forwhom"
           onChange={(e) =>
             setFilters((prev) => ({ ...prev, forwhom: e.target.value }))
           }
@@ -146,12 +159,15 @@ export default function App() {
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
       {/* Language */}
-      <label>
-        Language:
+      <div className="filter-group">
+        <label className="filter-language" htmlFor="language">
+          Language:
+        </label>
         <select
+          id="language"
           onChange={(e) =>
             setFilters((prev) => ({ ...prev, language: e.target.value }))
           }
@@ -162,192 +178,7 @@ export default function App() {
             </option>
           ))}
         </select>
-      </label>
+      </div>
     </div>
   );
 }
-// import { useState, useEffect } from "react";
-
-// export default function App() {
-//   console.log("Hello");
-//   const [tours, setTours] = useState([]);
-//   const [categories, setCategories] = useState([]);
-//   const [subcategories, setSubcategories] = useState([]);
-//   const [places, setPlaces] = useState([]);
-//   const [forwhoms, setForwhoms] = useState([]);
-//   const [languages, setLanguages] = useState([]);
-//   const [times, setTimes] = useState([]); // 🕓 добавлено
-
-//   const [filters, setFilters] = useState({
-//     category: "all",
-//     subcategory: "all",
-//     place: "all",
-//     forwhom: "all",
-//     language: "all",
-//     time: "all", // 🕓 добавлено
-//   });
-
-//   // 1️⃣ Читаем все туры из DOM
-//   useEffect(() => {
-//     const tourElements = document.querySelectorAll(".tour");
-
-//     const tourData = Array.from(tourElements).map((el) => ({
-//       element: el,
-//       category: el.dataset.category,
-//       subcategory: el.dataset.subcategory,
-//       place: el.dataset.place,
-//       forwhom: el.dataset.forwhom,
-//       language: el.dataset.language,
-//       time: el.dataset.time, // 🕓 добавлено
-//     }));
-
-//     setTours(tourData);
-
-//     // helper: сортируем + добавляем "all" в начало
-//     const sortedUnique = (arr) => [
-//       "all",
-//       ...Array.from(new Set(arr))
-//         .filter(Boolean)
-//         .sort((a, b) => a.localeCompare(b)),
-//     ];
-
-//     setCategories(sortedUnique(tourData.map((t) => t.category)));
-//     setSubcategories(sortedUnique(tourData.map((t) => t.subcategory)));
-//     setPlaces(sortedUnique(tourData.map((t) => t.place)));
-//     setForwhoms(sortedUnique(tourData.map((t) => t.forwhom)));
-//     setLanguages(sortedUnique(tourData.map((t) => t.language)));
-//     setTimes(sortedUnique(tourData.map((t) => t.time))); // 🕓 добавлено
-//   }, []);
-
-//   // 2️⃣ Логика фильтрации
-//   useEffect(() => {
-//     tours.forEach((t) => {
-//       const matchCategory =
-//         filters.category === "all" || t.category === filters.category;
-//       const matchSubcategory =
-//         filters.subcategory === "all" || t.subcategory === filters.subcategory;
-//       const matchPlace = filters.place === "all" || t.place === filters.place;
-//       const matchForwhom =
-//         filters.forwhom === "all" || t.forwhom === filters.forwhom;
-//       const matchLanguage =
-//         filters.language === "all" || t.language === filters.language;
-//       const matchTime = filters.time === "all" || t.time === filters.time; // 🕓 добавлено
-
-//       // если категория = event, тогда фильтруем по времени тоже
-//       const isVisible =
-//         matchCategory &&
-//         matchSubcategory &&
-//         matchPlace &&
-//         matchForwhom &&
-//         matchLanguage &&
-//         (filters.category === "event" ? matchTime : true);
-
-//       t.element.style.display = isVisible ? "block" : "none";
-//     });
-//   }, [filters, tours]);
-
-//   return (
-//     <div
-//       className="tour-filters"
-//       style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
-//     >
-//       {/* Category */}
-//       <label>
-//         Category:
-//         <select
-//           onChange={(e) => {
-//             setFilters((prev) => ({ ...prev, category: e.target.value }));
-//             console.log("🔍 Category changed to:", categories);
-//           }}
-//         >
-//           {categories.map((cat) => (
-//             <option key={cat} value={cat}>
-//               {cat === "all" ? "All" : cat}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-//       {/* Subcategory */}
-//       <label>
-//         Subcategory:
-//         <select
-//           onChange={(e) =>
-//             setFilters((prev) => ({ ...prev, subcategory: e.target.value }))
-//           }
-//         >
-//           {subcategories.map((sub) => (
-//             <option key={sub} value={sub}>
-//               {sub === "all" ? "All" : sub}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-//       {/* Place */}
-//       <label>
-//         Place:
-//         <select
-//           onChange={(e) =>
-//             setFilters((prev) => ({ ...prev, place: e.target.value }))
-//           }
-//         >
-//           {places.map((place) => (
-//             <option key={place} value={place}>
-//               {place === "all" ? "All" : place}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-//       {/* For whom */}
-//       <label>
-//         For whom:
-//         <select
-//           onChange={(e) =>
-//             setFilters((prev) => ({ ...prev, forwhom: e.target.value }))
-//           }
-//         >
-//           {forwhoms.map((fw) => (
-//             <option key={fw} value={fw}>
-//               {fw === "all" ? "All" : fw}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-//       {/* Language */ console.log("Hell")}
-//       <label>
-//         Language:
-//         <select
-//           onChange={(e) =>
-//             setFilters((prev) => ({ ...prev, language: e.target.value }))
-//           }
-//         >
-//           {languages.map((lang) => (
-//             <option key={lang} value={lang}>
-//               {lang === "all" ? "All" : lang}
-//             </option>
-//           ))}
-//         </select>
-//       </label>
-//       {
-//         /* 🕓 Time — показываем только если категория = event */ console.log(
-//           filters.category
-//         )
-//       }
-//       {filters.category === "event" && (
-//         <label>
-//           Time:
-//           <select
-//             onChange={(e) =>
-//               setFilters((prev) => ({ ...prev, time: e.target.value }))
-//             }
-//           >
-//             {times.map((t) => (
-//               <option key={t} value={t}>
-//                 {t === "all" ? "All" : t}
-//               </option>
-//             ))}
-//           </select>
-//         </label>
-//       )}
-//     </div>
-//   );
-// }

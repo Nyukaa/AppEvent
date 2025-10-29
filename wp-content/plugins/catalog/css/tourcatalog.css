@@ -114,7 +114,16 @@ body {
   font-weight: bold;
   margin: 10px 15px;
 }
-
+.tour-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* максимум 2 строки */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
+  color: #333;
+  margin: 0.5rem 0 1rem;
+}
 .tour-book-btn {
   width: 100%;
   text-align: center;
@@ -165,24 +174,18 @@ body {
 /* responsive grid layout */
 @media (max-width: 1024px) {
   .tour-catalog {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  }
-
-  .tour-book-btn {
-    padding: 10px 0;
-    text-align: center;
-    font-size: 0.9rem;
-    align-self: center;
-    margin-top: 20px;
-    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 15px;
+    padding: 15px;
   }
 }
 
+/* mobile: 1 card per row */
 @media (max-width: 768px) {
   .tour-catalog {
     grid-template-columns: 1fr;
     gap: 10px;
-    padding: 8px;
+    padding: 10px;
   }
 
   .tour-catalog .tour img {

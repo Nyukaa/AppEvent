@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Tour Catalog
-Description: A simple plugin to register a tour post type and generate a shortcode to display tours by category.
-Author: AnnaMariaElja
+Plugin Name: Catalog
+Description: A simple plugin to register a card post type and generate a shortcode to display cards by category.
+Author: Anna Maria Elja
 */ 
 
 require_once plugin_dir_path(__FILE__) . 'includes/tour-catalog-post-type.php';
@@ -29,14 +29,21 @@ function tourcatalog_assets() {
 }
 add_action('wp_enqueue_scripts', 'tourcatalog_assets');
 
-// Подключаем React (если используешь фильтр)
+
 function tourcatalog_enqueue_react() {
-    wp_enqueue_script(
+       wp_enqueue_script(
         'tourcatalog-react',
-        plugins_url('react/dist/assets/index-C6wmUFFY.js', __FILE__),
-        array(),
+        plugins_url('react/dist/assets/index-BzwJljMz.js', __FILE__), // путь до сборки
+        array(), // зависимости (можно ['wp-element'])
         null,
-        true
+        true // подключаем в футере
+    );
+    // Enqueue the React CSS file
+    wp_enqueue_style(
+        'tourcatalog-react-style',
+        plugins_url('react/dist/assets/index-D_Ubfx82.css', __FILE__),
+        array(), // dependencies (e.g. other styles)
+        null // version (null = no cache-busting)
     );
 }
 add_action('wp_enqueue_scripts', 'tourcatalog_enqueue_react');
