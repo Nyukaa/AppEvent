@@ -5,25 +5,15 @@
   text-align: center;
 }
 
-/* .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-} */
 .tour-filters {
-  /* background-color: green; */
+  background-color: #fce0d1;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 15px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .tour-filters {
   display: flex;
