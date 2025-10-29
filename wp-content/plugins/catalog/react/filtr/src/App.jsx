@@ -1,184 +1,233 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+
 export default function App() {
+  // Категория приходит извне: event | community
+  const [category, setCategory] = useState("event");
+
   const [tours, setTours] = useState([]);
   const [places, setPlaces] = useState([]);
   const [forwhoms, setForwhoms] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const [times, setTimes] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc"); // asc = ближайшие раньше
 
-  // начальный фильтр
+  // фильтры БЕЗ category и time
   const [filters, setFilters] = useState({
-    category: "all",
     place: "all",
     forwhom: "all",
     language: "all",
-    time: "all",
     subcategory: "all",
   });
 
+  // читаем корневую категорию и карточки
   useEffect(() => {
-    // Попробуем получить категорию из обёртки шорткода, например:
-    // <div id="tour-filter-root" data-category="community"></div>
     const root = document.getElementById("tour-filter-root");
-    const initialCategory = root?.dataset?.category || "all";
-    setFilters((prev) => ({ ...prev, category: initialCategory }));
+    const initialCategory = root?.dataset?.category?.toLowerCase();
+    setCategory(initialCategory === "community" ? "community" : "event");
 
-    // Чтение туров с DOM
     const tourElements = document.querySelectorAll(".tour");
     const tourData = Array.from(tourElements).map((el) => ({
       element: el,
-      category: el.dataset.category,
-      place: el.dataset.place,
-      forwhom: el.dataset.forwhom,
-      language: el.dataset.language,
-      time: el.dataset.time,
-      subcategory: el.dataset.subcategory,
+      category: (el.dataset.category || "").toLowerCase(),
+      place: el.dataset.place ?? "all",
+      forwhom: el.dataset.forwhom ?? "all",
+      language: el.dataset.language ?? "all",
+      time: el.dataset.time ?? "",
+      subcategory: el.dataset.subcategory ?? "all",
     }));
 
     setTours(tourData);
-
-    const sortedUnique = (arr) => [
-      "all",
-      ...Array.from(new Set(arr))
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b)),
-    ];
-
-    setPlaces(sortedUnique(tourData.map((t) => t.place)));
-    setForwhoms(sortedUnique(tourData.map((t) => t.forwhom)));
-    setLanguages(sortedUnique(tourData.map((t) => t.language)));
-    setTimes(sortedUnique(tourData.map((t) => t.time)));
-    setSubcategories(sortedUnique(tourData.map((t) => t.subcategory)));
   }, []);
 
+  // пересобираем варианты для текущей категории
   useEffect(() => {
-    tours.forEach((t) => {
-      const matchCategory =
-        filters.category === "all" || t.category === filters.category;
-      const matchPlace = filters.place === "all" || t.place === filters.place;
-      const matchSubcategory =
-        filters.subcategory === "all" || t.subcategory === filters.subcategory;
-      const matchForwhom =
-        filters.forwhom === "all" || t.forwhom === filters.forwhom;
-      const matchLanguage =
-        filters.language === "all" || t.language === filters.language;
-      const matchTime = filters.time === "all" || t.time === filters.time;
+    const fromCurrent = tours.filter((t) => t.category === category);
+    const sortedUnique = (arr) => [
+      "all",
+      ...Array.from(new Set(arr.filter(Boolean))).sort((a, b) =>
+        String(a).localeCompare(String(b))
+      ),
+    ];
+    setPlaces(sortedUnique(fromCurrent.map((t) => t.place)));
+    setForwhoms(sortedUnique(fromCurrent.map((t) => t.forwhom)));
+    setLanguages(sortedUnique(fromCurrent.map((t) => t.language)));
+    setSubcategories(sortedUnique(fromCurrent.map((t) => t.subcategory)));
 
-      t.element.style.display =
-        matchSubcategory &&
-        matchCategory &&
-        matchPlace &&
-        matchForwhom &&
-        matchLanguage &&
-        matchTime
-          ? "block"
-          : "none";
+    // если выбранное значение отсутствует в новой категории — сброс на all
+    setFilters((prev) => ({
+      place: fromCurrent.some((t) => t.place === prev.place)
+        ? prev.place
+        : "all",
+      forwhom: fromCurrent.some((t) => t.forwhom === prev.forwhom)
+        ? prev.forwhom
+        : "all",
+      language: fromCurrent.some((t) => t.language === prev.language)
+        ? prev.language
+        : "all",
+      subcategory: fromCurrent.some((t) => t.subcategory === prev.subcategory)
+        ? prev.subcategory
+        : "all",
+    }));
+  }, [tours, category]);
+
+  // утилита сопоставления с учётом фиксированной category
+  const matches = (t, f) =>
+    t.category === category &&
+    (f.place === "all" || t.place === f.place) &&
+    (f.forwhom === "all" || t.forwhom === f.forwhom) &&
+    (f.language === "all" || t.language === f.language) &&
+    (f.subcategory === "all" || t.subcategory === f.subcategory);
+
+  // утилита парсинга даты
+  const parseTime = (value) => {
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? NaN : d.getTime();
+  };
+
+  // Грей-аут: сколько карточек будет, если выбрать value для key
+  const countFor = (key, value) => {
+    const next = { ...filters, [key]: value };
+    return tours.filter((t) => matches(t, next)).length;
+  };
+
+  // применяем видимость и сортировку
+  useEffect(() => {
+    // видимость
+    tours.forEach((t) => {
+      const visible = matches(t, filters);
+      t.element.classList.toggle("is-hidden", !visible);
     });
-  }, [filters, tours]);
+
+    // сортировка только для event
+    if (category === "event") {
+      const container =
+        tours[0]?.element?.parentElement || document.querySelector(".tours");
+      if (!container) return;
+
+      const now = Date.now();
+      const visible = tours
+        .filter(
+          (t) =>
+            t.category === category &&
+            !t.element.classList.contains("is-hidden")
+        )
+        .map((t) => {
+          const ts = parseTime(t.time);
+          const isBad = Number.isNaN(ts);
+          const isPast = !isBad && ts < now;
+          const isFuture = !isBad && ts >= now;
+          return { ...t, ts, isBad, isPast, isFuture };
+        });
+
+      const future = visible.filter((x) => x.isFuture);
+      const past = visible.filter((x) => x.isPast);
+      const bad = visible.filter((x) => x.isBad);
+
+      const cmp = (a, b) => (sortOrder === "asc" ? a.ts - b.ts : b.ts - a.ts);
+      future.sort(cmp);
+      past.sort(cmp);
+
+      const ordered = [...future, ...past, ...bad];
+      ordered.forEach((t) => container.appendChild(t.element));
+    }
+  }, [filters, tours, sortOrder, category]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Рендер option с дизейблом, если выбор приведёт к 0
+  const renderOption = (key, v) => {
+    const disabled = v !== "all" && countFor(key, v) === 0;
+    const label = v === "all" ? "All" : v;
+    return (
+      <option key={v} value={v} disabled={disabled}>
+        {label}
+      </option>
+    );
+  };
 
   return (
-    <div
-      className="tour-filters"
-      // style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
-    >
-      {/* Time (only for category = event) */}
-      {filters.category === "event" && (
-        <div className="filter-group">
-          <label className="filter-time" htmlFor="time">
-            Time:
-          </label>
-          <select
-            id="time"
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, time: e.target.value }))
-            }
-          >
-            {times.map((t) => (
-              <option key={t} value={t}>
-                {t === "all" ? "All" : t}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Place */}
-      <div className="filter-group ">
-        <label className="filter-place" htmlFor="place">
-          Place:
-        </label>
-        <select
-          id="place"
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, place: e.target.value }))
-          }
-        >
-          {places.map((place) => (
-            <option key={place} value={place}>
-              {place === "all" ? "All" : place}
-            </option>
-          ))}
-        </select>
-      </div>
-
+    <div className="tour-filters">
       {/* Subcategory */}
       <div className="filter-group">
-        <label className="filter-subcategory" htmlFor="subcategory">
-          Theme:
+        <label htmlFor="subcategory" className="filter-subcategory">
+          Subcategory:
         </label>
         <select
           id="subcategory"
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, subcategory: e.target.value }))
-          }
+          name="subcategory"
+          value={filters.subcategory}
+          onChange={handleFilterChange}
         >
-          {subcategories.map((sub) => (
-            <option key={sub} value={sub}>
-              {sub === "all" ? "All" : sub}
-            </option>
-          ))}
+          {subcategories.map((s) => renderOption("subcategory", s))}
         </select>
       </div>
 
       {/* For whom */}
       <div className="filter-group">
-        <label className="filter-forwhom" htmlFor="forwhom">
-          Audience:
+        <label htmlFor="forwhom" className="filter-forwhom">
+          For whom:
         </label>
         <select
           id="forwhom"
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, forwhom: e.target.value }))
-          }
+          name="forwhom"
+          value={filters.forwhom}
+          onChange={handleFilterChange}
         >
-          {forwhoms.map((fw) => (
-            <option key={fw} value={fw}>
-              {fw === "all" ? "All" : fw}
-            </option>
-          ))}
+          {forwhoms.map((f) => renderOption("forwhom", f))}
+        </select>
+      </div>
+
+      {/* Place */}
+      <div className="filter-group">
+        <label htmlFor="place" className="filter-place">
+          Place:
+        </label>
+        <select
+          id="place"
+          name="place"
+          value={filters.place}
+          onChange={handleFilterChange}
+        >
+          {places.map((p) => renderOption("place", p))}
         </select>
       </div>
 
       {/* Language */}
       <div className="filter-group">
-        <label className="filter-language" htmlFor="language">
+        <label htmlFor="language" className="filter-language">
           Language:
         </label>
         <select
           id="language"
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, language: e.target.value }))
-          }
+          name="language"
+          value={filters.language}
+          onChange={handleFilterChange}
         >
-          {languages.map((lang) => (
-            <option key={lang} value={lang}>
-              {lang === "all" ? "All" : lang}
-            </option>
-          ))}
+          {languages.map((l) => renderOption("language", l))}
         </select>
       </div>
+
+      {/* Sort by date: только для event */}
+      {category === "event" && (
+        <div className="filter-group">
+          <label htmlFor="sortOrder" className="filter-time">
+            Sort by date:
+          </label>
+          <select
+            id="sortOrder"
+            name="sortOrder"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="asc">Nearest first</option>
+            <option value="desc">Farthest first</option>
+          </select>
+        </div>
+      )}
     </div>
   );
 }
