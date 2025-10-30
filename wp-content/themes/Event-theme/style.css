@@ -450,7 +450,7 @@ header .header-container {
   padding: 70px 40px 70px;
 }
 
-/* latest-article section */
+/* latest-article, latest-events, latest-communities section */
 
 .latest-articles,
 .latest-events,
@@ -506,8 +506,7 @@ header .header-container {
   display: block;
 }
 
-.latest-articles .article-grid .latest-article-card h3,
-.latest-communities .community-grid .community-card h3 {
+.latest-articles .article-grid .latest-article-card h3 {
   font-family: "Poppins", sans-serif;
   font-size: 1.2rem;
   font-weight: 600;
@@ -515,10 +514,14 @@ header .header-container {
   padding: 12px 20px;
 }
 
-.latest-events .event-grid .event-card h3 {
+.latest-events .event-grid .event-card h3,
+.latest-communities .community-grid .community-card h3 {
   background-color: #69013b;
   color: #fce0d1;
   padding: 12px 20px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .latest-articles .article-grid .latest-article-card a,
@@ -528,16 +531,31 @@ header .header-container {
   width: 100%;
 }
 
-/* Latest events */
-.event-meta {
+/* Короткий опис до events і communities*/
+.latest-events .event-excerpt,
+.latest-communities .community-excerpt{
+  overflow: hidden;
+  max-height: 100px;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* кількість рядків, які треба показати */
+  -webkit-box-orient: vertical;
+  font-size: 0.9rem;
+}
+
+.event-meta, 
+.community-meta {
   font-size: 1rem;
   color: #555;
   padding: 20px;
   text-align: left;
 }
 
-.event-meta p {
-  margin: 6px 0;
+
+
+.event-meta p,
+.community-meta p {
+  margin-bottom: 6px;
 }
 
 /* Create a layout for a sticky footer */
@@ -855,6 +873,38 @@ body {
 
 .single-post .post-content p {
   margin-bottom: 20px;
+}
+
+/* ===== Contacts page (page-contacts.php) ===== */
+.contacts-columns{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.contacts-column{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.contacts-container h1{
+  color: #69013b;
+  font-size: 3.2rem;
+  margin-bottom: 40px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.contacts-container h3{
+  margin-bottom: 8px;
+  color: #69013b;
+  font-size: 1.8rem;
+  font-weight: 400;
+  letter-spacing: 1px;
 }
 
 /* Responsiveness */
