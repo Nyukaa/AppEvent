@@ -10,7 +10,7 @@
                 <a href="/events" class="hero-cta"> <i class="fa-solid fa-calendar-days"></i> <span>Explore Events</span></a>
                 <a href="/communities" class="hero-cta"><i class="fa-solid fa-users"></i> Join Communities</a>
             </div>
-            <a class="hero-link" href="http://event.local/what-does-networking-mean/"><span>What does networking mean?</span> <i class="fa-solid fa-arrow-right"></i> </a>
+            <a class="hero-link" href="articles/what-does-networking-mean/"><span>What does networking mean?</span> <i class="fa-solid fa-arrow-right"></i> </a>
         </div>
     </div>
 </section>
@@ -92,9 +92,11 @@
                   <?php if ($forwhom): ?>
                     <p><strong>Audience:</strong> <?php echo esc_html($forwhom); ?></p>
                   <?php endif; ?>
+
+                  <p class="event-excerpt"><?php echo esc_html($content); ?></p>
                 </div>
 
-                <p class="event-excerpt"><?php echo esc_html($content); ?></p>
+                
               </a>
             </article>
         <?php endwhile;
@@ -106,39 +108,70 @@
 </section>
 
 
-    
-    <!-- The latest 3 communities -->
-    <section class="latest-communities">
-        <h2>Latest Communities</h2>
-        <div class="community-grid">
-            <?php
-            $latest_communities = new WP_Query([
-                'post_type'      => 'tourcatalog_tour',
-                'posts_per_page' => 3,
-                'tax_query'      => [
-                    [
-                        'taxonomy' => 'tourcatalog_tour_category',
-                        'field'    => 'slug',
-                        'terms'    => 'community' // 👈 заміни на slug категорії community
-                    ]
-                ]
-            ]);
+ <!-- The latest 3 communities -->
+<section class="latest-communities">
+  <h2>Latest Communities</h2>
+  <div class="community-grid">
+    <?php
+    $latest_communities = new WP_Query([
+        'post_type'      => 'tourcatalog_tour',
+        'posts_per_page' => 3,
+        'tax_query'      => [
+            [
+                'taxonomy' => 'tourcatalog_tour_category',
+                'field'    => 'slug',
+                'terms'    => 'community',
+            ],
+        ],
+    ]);
 
-            if ($latest_communities->have_posts()):
-                while ($latest_communities->have_posts()): $latest_communities->the_post(); ?>
-                    <article class="community-card">
-                        <a href="<?php the_permalink(); ?>">
-                            <?php if (has_post_thumbnail()) the_post_thumbnail('medium'); ?>
-                            <h3><?php the_title(); ?></h3>
-                        </a>
-                    </article>
-                <?php endwhile;
-                wp_reset_postdata();
-            else: ?>
-                <p>No communities found.</p>
-            <?php endif; ?>
-        </div>
+    if ($latest_communities->have_posts()):
+        while ($latest_communities->have_posts()): $latest_communities->the_post();
+
+            // Кастомні поля
+            $time     = get_post_meta(get_the_ID(), '_tourcatalog_meta_time', true);
+            $place    = get_post_meta(get_the_ID(), '_tourcatalog_meta_place', true);
+            $forwhom  = get_post_meta(get_the_ID(), '_tourcatalog_meta_forwhom', true);
+
+            // Отримуємо excerpt або короткий опис
+            $content = get_the_excerpt();
+            if (!$content) {
+                $content = wp_trim_words(get_the_content(), 6, '...');
+            }
+            ?>
+            
+            <article class="community-card">
+              <a href="<?php the_permalink(); ?>">
+                <?php if (has_post_thumbnail()) the_post_thumbnail('medium'); ?>
+                <h3><?php the_title(); ?></h3>
+
+                <div class="community-meta">
+                  <?php if ($time): ?>
+                    <p><strong>Date:</strong> <?php echo esc_html($time); ?></p>
+                  <?php endif; ?>
+
+                  <?php if ($place): ?>
+                    <p><strong>Place:</strong> <?php echo esc_html($place); ?></p>
+                  <?php endif; ?>
+
+                  <?php if ($forwhom): ?>
+                    <p><strong>Audience:</strong> <?php echo esc_html($forwhom); ?></p>
+                  <?php endif; ?>
+
+                  <p class="community-excerpt"><?php echo esc_html($content); ?></p>
+                </div>
+              </a>
+            </article>
+        <?php endwhile;
+        wp_reset_postdata();
+    else: ?>
+        <p>No communities found.</p>
+    <?php endif; ?>
+  </div>
 </section>
+   
+   
+
 
 
 </div>
