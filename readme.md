@@ -6,6 +6,8 @@ Fully responsive, bilingual (English & Finnish), and interactive with a React-ba
 🌐 **Live demo:** [findcommunity](https://findcommunity.great-site.net/)  
 💻 **GitHub Repository:** [github](https://github.com/Nyukaa/AppEvent)
 
+👥 **How to use app:** [github](https://github.com/Nyukaa/AppEvent/blob/main/wp-content/usersReamme.md)
+
 ---
 
 ## 👩‍💻 Authors
